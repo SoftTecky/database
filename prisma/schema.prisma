@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider 	    = "postgresql"
+  url      	    = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model Users {
@@ -194,34 +195,34 @@ model Addresses {
   external  Int
   internal  Int
 
-  city      City        @relation(fields: [cityId], references: [cityId])
+  city      Cities        @relation(fields: [cityId], references: [cityId])
   cityId    Int          @unique
 
   companies Companies[]
 }
 
-model Country {
+model Countries {
   countryId Int      @id @unique @default(autoincrement())
   name      String
 
-  states    State[]
+  states    States[]
 }
 
-model State {
+model States {
   stateId   Int      @id @unique @default(autoincrement())
   name      String
 
-  country   Country @relation(fields: [countryId], references: [countryId])
+  country   Countries @relation(fields: [countryId], references: [countryId])
   countryId Int
 
-  city      City[]
+  city      Cities[]
 }
 
-model City {
+model Cities {
   cityId    Int          @id @unique @default(autoincrement())
   name      String
 
-  state     State       @relation(fields: [stateId], references: [stateId])
+  state     States       @relation(fields: [stateId], references: [stateId])
   stateId   Int          @unique
 
   addresses Addresses[]
