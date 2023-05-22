@@ -3,272 +3,295 @@ generator client {
 }
 
 datasource db {
-  provider 	    = "postgresql"
-  url      	    = env("DATABASE_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-model Users {
-  userId           Int            @id @unique @default(autoincrement())
-  name             String
-  lastname1        String
-  lastname2        String?
-  email            String         @unique
-  password         String
-  birthdate        DateTime
-  telephone        String
-  leader           Boolean
+model users {
+  user_id   Int      @id @unique @default(autoincrement())
+  name      String
+  lastname1 String
+  lastname2 String?
+  email     String   @unique
+  password  String
+  birthdate DateTime
+  telephone String
 
-  gender           Genders       @relation(fields: [genderId], references: [genderId])
-  genderId         Int
+  leader    users   @relation(fields: [leader_id], references: [user_id], name: "LeaderEmployee")
+  leader_id Int
+  employees users[] @relation(name: "LeaderEmployee")
 
-  role             Roles?        @relation(fields: [roleId], references: [roleId])
-  roleId           Int
+  gender    genders @relation(fields: [gender_id], references: [gender_id])
+  gender_id Int
 
-  team             Teams?        @relation(fields: [teamId], references: [teamId])
-  teamId           Int
+  role    roles? @relation(fields: [role_id], references: [role_id])
+  role_id Int
 
-  company          Companies?    @relation(fields: [companyId], references: [companyId])
-  companyId        Int
+  team    teams? @relation(fields: [team_id], references: [team_id])
+  team_id Int
 
-  profile          Profiles?
+  company    companies? @relation(fields: [company_id], references: [company_id])
+  company_id Int
 
-  posts            Posts[]
+  profile profiles?
 
-  comments         Comments[]
+  posts posts[]
 
-  reactions        Reactions[]
+  comments comments[]
 
-  evaluatingUser   Evaluations[] @relation(name: "EvaluatingUser")
-  evaluatedUser    Evaluations[] @relation(name: "EvaluatedUser")
+  reactions reactions[]
 
-  senderMessages   Messages[]    @relation(name: "SenderUser")
-  receiverMessages Messages[]    @relation(name: "ReceiverUser")
+  evaluating_user evaluations[] @relation(name: "EvaluatingUser")
+  evaluated_user  evaluations[] @relation(name: "EvaluatedUser")
 
-  connectionUser      Connections[] @relation(name: "ConnectionUser")
-  connectionFriend    Connections[] @relation(name: "ConnectionFriend")
+  sender_messages   messages[] @relation(name: "MessageSenderUser")
+  receiver_messages messages[] @relation(name: "MessageReceiverUser")
 
-  connectionRequestUser ConnectionRequests[] @relation(name: "ConnectionRequestUser")
-  connectionRequestFriend ConnectionRequests[] @relation(name: "ConnectionRequestFriend")
+  connection_user   connections[] @relation(name: "ConnectionUser")
+  connection_friend connections[] @relation(name: "ConnectionFriend")
+
+  connection_request_user   connection_requests[] @relation(name: "ConnectionRequestUser")
+  connection_request_friend connection_requests[] @relation(name: "ConnectionRequestFriend")
+
+  notification_sender   notifications[] @relation(name: "NotificationSenderUser")
+  notification_receiver notifications[] @relation(name: "NotificationReceiverUser")
 }
 
-model Connections {
-  connectionId Int      @id @unique @default(autoincrement())
-  date         DateTime
+model connections {
+  connection_id Int      @id @unique @default(autoincrement())
+  date          DateTime
 
-  user         Users    @relation(fields: [userId], references: [userId], name: "ConnectionUser")
-  userId       Int
+  user    users @relation(fields: [user_id], references: [user_id], name: "ConnectionUser")
+  user_id Int
 
-  friend       Users    @relation(fields: [friendId], references: [userId], name: "ConnectionFriend")
-  friendId     Int
+  friend    users @relation(fields: [friend_id], references: [user_id], name: "ConnectionFriend")
+  friend_id Int
 }
 
-model ConnectionRequests {
-  connectionRequestId Int      @id @unique @default(autoincrement())
-  date                DateTime
+model connection_requests {
+  connectionRequest_id Int      @id @unique @default(autoincrement())
+  date                 DateTime
 
-  accepted            Boolean
+  accepted Boolean
 
-  user                Users    @relation(fields: [userId], references: [userId], name: "ConnectionRequestUser")
-  userId              Int
+  user    users @relation(fields: [user_id], references: [user_id], name: "ConnectionRequestUser")
+  user_id Int
 
-  friend              Users    @relation(fields: [friendId], references: [userId], name: "ConnectionRequestFriend")
-  friendId            Int
+  friend    users @relation(fields: [friend_id], references: [user_id], name: "ConnectionRequestFriend")
+  friend_id Int
 }
 
-model Genders {
-  genderId Int      @id @unique @default(autoincrement())
-  name     String   @unique
+model genders {
+  gender_id Int    @id @unique @default(autoincrement())
+  name      String @unique
 
-  users    Users[]
+  users users[]
 }
 
-model Roles {
-  roleId Int      @id @unique @default(autoincrement())
-  name   String   @unique
+model roles {
+  role_id Int    @id @unique @default(autoincrement())
+  name    String @unique
 
-  users  Users[]
+  users users[]
 }
 
-model Profiles {
-  profileId   Int      @id @unique @default(autoincrement())
+model profiles {
+  profile_id  Int     @id @unique @default(autoincrement())
   description String?
 
-  user        Users   @relation(fields: [userId], references: [userId])
-  userId      Int      @unique
+  user    users @relation(fields: [user_id], references: [user_id])
+  user_id Int   @unique
 }
 
-model Posts {
-  postId      Int         @id @unique @default(autoincrement())
+model posts {
+  post_id     Int      @id @unique @default(autoincrement())
   title       String
   description String
   date        DateTime
 
-  reactions   Reactions?
+  reactions reactions?
 
-  user        Users      @relation(fields: [userId], references: [userId])
-  userId      Int         @unique
+  user    users @relation(fields: [user_id], references: [user_id])
+  user_id Int   @unique
 
-  comments    Comments[]
+  comments comments[]
 }
 
-model Reactions {
-  reactionId Int            @id @unique @default(autoincrement())
+model reactions {
+  reaction_id Int @id @unique @default(autoincrement())
 
-  user       Users         @relation(fields: [userId], references: [userId])
-  userId     Int            @unique
+  user    users @relation(fields: [user_id], references: [user_id])
+  user_id Int   @unique
 
-  post       Posts         @relation(fields: [postId], references: [postId])
-  postId     Int            @unique
+  post    posts @relation(fields: [post_id], references: [post_id])
+  post_id Int   @unique
 
-  type       ReactionTypes @relation(fields: [typeId], references: [reactionTypeId])
-  typeId     Int
+  type    reaction_types @relation(fields: [type_id], references: [reaction_type_id])
+  type_id Int
 }
 
-model ReactionTypes {
-  reactionTypeId Int          @id @unique @default(autoincrement())
-  type           String
+model reaction_types {
+  reaction_type_id Int    @id @unique @default(autoincrement())
+  type             String
 
-  reaction       Reactions[]
+  reaction reactions[]
 }
 
-model Comments {
-  commentId   Int       @id @unique @default(autoincrement())
+model comments {
+  comment_id  Int      @id @unique @default(autoincrement())
   description String
   date        DateTime
 
-  user        Users    @relation(fields: [userId], references: [userId])
-  userId      Int       @unique
+  user    users @relation(fields: [user_id], references: [user_id])
+  user_id Int   @unique
 
-  post        Posts    @relation(fields: [postId], references: [postId])
-  postId      Int       @unique
+  post    posts @relation(fields: [post_id], references: [post_id])
+  post_id Int   @unique
 }
 
-model Companies {
-  companyId   Int           @id @unique @default(autoincrement())
-  name        String
-  link        String
+model companies {
+  company_id Int    @id @unique @default(autoincrement())
+  name       String
+  link       String
 
-  area        String
+  area    company_areas @relation(fields: [area_id], references: [area_id])
+  area_id Int
 
-  size        CompanySizes @relation(fields: [sizeId], references: [companySizeId])
-  sizeId      Int
+  size    company_sizes @relation(fields: [size_id], references: [company_size_id])
+  size_id Int
 
-  type        CompanyTypes @relation(fields: [typeId], references: [companyTypeId])
-  typeId      Int
+  type    company_types @relation(fields: [type_id], references: [company_type_id])
+  type_id Int
 
-  logo        String
+  logo String
 
   description String
 
-  address     Addresses    @relation(fields: [addresseId], references: [addressId])
-  addresseId  Int
+  address     addresses @relation(fields: [addresse_id], references: [address_id])
+  addresse_id Int
 
-  users       Users[]
-  teams       Teams[]
+  users users[]
+  teams teams[]
 }
 
-model CompanyTypes {
-  companyTypeId Int          @id @unique @default(autoincrement())
-  name          String
+model company_types {
+  company_type_id Int    @id @unique @default(autoincrement())
+  name            String
 
-  companies     Companies[]
+  companies companies[]
 }
 
-model CompanyAreas {
-  areaId Int     @id @unique @default(autoincrement())
-  name   String
+model company_areas {
+  area_id Int    @id @unique @default(autoincrement())
+  name    String
+
+  companies companies[]
 }
 
-model CompanySizes {
-  companySizeId Int          @id @unique @default(autoincrement())
-  name          String
+model company_sizes {
+  company_size_id Int    @id @unique @default(autoincrement())
+  name            String
 
-  companies     Companies[]
+  companies companies[]
 }
 
-model Addresses {
-  addressId Int          @id @unique @default(autoincrement())
-  street    String
-  suburb    String
-  zipCode   String
-  external  Int
-  internal  Int
+model addresses {
+  address_id Int    @id @unique @default(autoincrement())
+  street     String
+  suburb     String
+  zip_code   String
+  external   Int
+  internal   Int
 
-  city      Cities        @relation(fields: [cityId], references: [cityId])
-  cityId    Int          @unique
+  city    cities @relation(fields: [city_id], references: [city_id])
+  city_id Int    @unique
 
-  companies Companies[]
+  companies companies[]
 }
 
-model Countries {
-  countryId Int      @id @unique @default(autoincrement())
-  name      String
+model countries {
+  country_id Int    @id @unique @default(autoincrement())
+  name       String
 
-  states    States[]
+  states states[]
 }
 
-model States {
-  stateId   Int      @id @unique @default(autoincrement())
-  name      String
+model states {
+  state_id Int    @id @unique @default(autoincrement())
+  name     String
 
-  country   Countries @relation(fields: [countryId], references: [countryId])
-  countryId Int
+  country    countries @relation(fields: [country_id], references: [country_id])
+  country_id Int
 
-  city      Cities[]
+  city cities[]
 }
 
-model Cities {
-  cityId    Int          @id @unique @default(autoincrement())
-  name      String
+model cities {
+  city_id Int    @id @unique @default(autoincrement())
+  name    String
 
-  state     States       @relation(fields: [stateId], references: [stateId])
-  stateId   Int          @unique
+  state    states @relation(fields: [state_id], references: [state_id])
+  state_id Int    @unique
 
-  addresses Addresses[]
+  addresses addresses[]
 }
 
-model Teams {
-  teamId    Int        @id @unique @default(autoincrement())
-  name      String
+model teams {
+  team_id Int    @id @unique @default(autoincrement())
+  name    String
 
-  company   Companies @relation(fields: [companyId], references: [companyId])
-  companyId Int        @unique
+  company    companies @relation(fields: [company_id], references: [company_id])
+  company_id Int       @unique
 
-  users     Users[]
+  users users[]
 }
 
-model SoftSkills {
-  softSkillId Int            @id @unique @default(autoincrement())
-  name        String
+model softskills {
+  softskill_id Int    @id @unique @default(autoincrement())
+  name         String
 
-  evaluations Evaluations[]
+  evaluations evaluations[]
 }
 
-model Evaluations {
-  evaluationId     Int         @id @unique @default(autoincrement())
+model evaluations {
+  evaluation_id Int @id @unique @default(autoincrement())
 
-  evaluatingUser   Users      @relation(fields: [evaluatingUserId], references: [userId], name: "EvaluatingUser")
-  evaluatingUserId Int
+  evaluating_user    users @relation(fields: [evaluating_user_id], references: [user_id], name: "EvaluatingUser")
+  evaluating_user_id Int
 
-  evaluatedUser    Users      @relation(fields: [evaluatedUserId], references: [userId], name: "EvaluatedUser")
-  evaluatedUserId  Int
+  evaluated_user    users @relation(fields: [evaluated_user_id], references: [user_id], name: "EvaluatedUser")
+  evaluated_user_id Int
 
-  date             DateTime
-  result           Int
+  date   DateTime
+  result Int
 
-  softSkill        SoftSkills @relation(fields: [softSkillId], references: [softSkillId])
-  softSkillId      Int
+  softskill    softskills @relation(fields: [softskill_id], references: [softskill_id])
+  softskill_id Int
 }
 
-model Messages {
-  messageId      Int       @id @unique @default(autoincrement())
-  description    String
-  date           DateTime
+model messages {
+  message_id  Int      @id @unique @default(autoincrement())
+  description String
+  date        DateTime
 
-  senderUser     Users    @relation(fields: [senderUserId], references: [userId], name: "SenderUser")
-  senderUserId   Int
+  sender_user    users @relation(fields: [sender_user_id], references: [user_id], name: "MessageSenderUser")
+  sender_user_id Int
 
-  receiverUser   Users    @relation(fields: [receiverUserId], references: [userId], name: "ReceiverUser")
-  receiverUserId Int
+  receiver_user    users @relation(fields: [receiver_user_id], references: [user_id], name: "MessageReceiverUser")
+  receiver_user_id Int
+}
+
+model notifications {
+  notification_id Int      @id @unique @default(autoincrement())
+  description     String
+  type            String
+  date            DateTime
+  read            Boolean
+
+  sender_user    users @relation(fields: [sender_user_id], references: [user_id], name: "NotificationSenderUser")
+  sender_user_id Int
+
+  receiver_user    users @relation(fields: [receiver_user_id], references: [user_id], name: "NotificationReceiverUser")
+  receiver_user_id Int
 }
