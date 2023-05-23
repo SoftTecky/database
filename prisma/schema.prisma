@@ -110,10 +110,10 @@ model posts {
   description String
   date        DateTime
 
-  reactions reactions?
-
   user    users @relation(fields: [user_id], references: [user_id])
-  user_id Int   @unique
+  user_id Int
+
+  reactions reactions[]
 
   comments comments[]
 }
@@ -122,10 +122,10 @@ model reactions {
   reaction_id Int @id @unique @default(autoincrement())
 
   user    users @relation(fields: [user_id], references: [user_id])
-  user_id Int   @unique
+  user_id Int
 
   post    posts @relation(fields: [post_id], references: [post_id])
-  post_id Int   @unique
+  post_id Int
 
   type    reaction_types @relation(fields: [type_id], references: [reaction_type_id])
   type_id Int
@@ -144,10 +144,10 @@ model comments {
   date        DateTime
 
   user    users @relation(fields: [user_id], references: [user_id])
-  user_id Int   @unique
+  user_id Int
 
   post    posts @relation(fields: [post_id], references: [post_id])
-  post_id Int   @unique
+  post_id Int
 }
 
 model companies {
@@ -205,7 +205,7 @@ model addresses {
   internal   Int
 
   city    cities @relation(fields: [city_id], references: [city_id])
-  city_id Int    @unique
+  city_id Int
 
   companies companies[]
 }
@@ -232,7 +232,7 @@ model cities {
   name    String
 
   state    states @relation(fields: [state_id], references: [state_id])
-  state_id Int    @unique
+  state_id Int
 
   addresses addresses[]
 }
@@ -242,7 +242,7 @@ model teams {
   name    String
 
   company    companies @relation(fields: [company_id], references: [company_id])
-  company_id Int       @unique
+  company_id Int
 
   users users[]
 }
@@ -285,13 +285,22 @@ model messages {
 model notifications {
   notification_id Int      @id @unique @default(autoincrement())
   description     String
-  type            String
   date            DateTime
   read            Boolean
+
+  type    notification_types @relation(fields: [type_id], references: [notification_type_id])
+  type_id Int
 
   sender_user    users @relation(fields: [sender_user_id], references: [user_id], name: "NotificationSenderUser")
   sender_user_id Int
 
   receiver_user    users @relation(fields: [receiver_user_id], references: [user_id], name: "NotificationReceiverUser")
   receiver_user_id Int
+}
+
+model notification_types {
+  notification_type_id Int    @id @unique @default(autoincrement())
+  name                 String
+
+  notifications notifications[]
 }
